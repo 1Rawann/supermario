@@ -5,7 +5,6 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Network.hpp>
-#include "Animation.h"
 using namespace std;
 using namespace sf;
 
@@ -15,23 +14,23 @@ int main()
     bool canjump = true;
     Clock animation_clock;
     Clock coin_clock;
+    Clock goomba_clock;
+    RenderWindow window(VideoMode(1700, 400), "SuperMario");
 
-    RenderWindow window(VideoMode(1500, 400), "SuperMario");
-
-    RectangleShape layer(Vector2f(1500, 400.0));
+    RectangleShape layer(Vector2f(1700, 400.0));
     layer.setPosition(0, 0);
     Texture sky;
     sky.loadFromFile("skyyy.png");
     layer.setTexture(&sky);
 
-    RectangleShape layer2(Vector2f(1500.0, 390.0));
+    RectangleShape layer2(Vector2f(1700.0, 390.0));
     layer2.setPosition(0, 0);
     Texture sky2;
     sky2.loadFromFile("skyy.png");
     layer2.setTexture(&sky2);
 
     RectangleShape shape(Vector2f(75.0f, 75.0f));
-    shape.setPosition(70, 10);
+    shape.setPosition(0, 300);
     Texture mario;
     mario.loadFromFile("mario4.png");
     shape.setTexture(&mario);
@@ -39,20 +38,43 @@ int main()
     shape.setTextureRect(IntRect(0, 0, 16, 32));
     int animationIndicator = 0;
 
+
+
+
+    Texture goombas;
+    goombas.loadFromFile("goomba.png");
+    Sprite goomba(goombas);
+    goomba.setPosition(700, 340);
+    goomba.setTextureRect(sf::IntRect(0, 0, 36, 32));
+    int  ganimationIndicator = 0;
+    bool isgoombavisable = true;
+
+    View camera(FloatRect(1700, 0, 1700, 400));
+    camera.setCenter(sf::Vector2f(0.f, 300.f));
+    camera.setSize(sf::Vector2f(800.f, 400.f));
+
     RectangleShape ground(Vector2f(75.0f, 75.0f));
     ground.setPosition(0, 375);
     Texture Ground;
     Ground.loadFromFile("ground.png");
     ground.setTexture(&Ground);
-    ground.setScale(12, 0.7);
+    ground.setScale(13.4, 0.7);
     //ground.setTextureRect(IntRect(0, 0, 16, 32));
     //ground.setPosition(ground.getGlobalBounds().width, 400 - ground.getGlobalBounds().height);
-    RectangleShape groundd(Vector2f(75.0f, 75.0f));
-    groundd.setPosition(1000, 375);
-    Texture Groundd;
-    Groundd.loadFromFile("ground.png");
-    groundd.setTexture(&Groundd);
-    groundd.setScale(10, 0.7);
+    RectangleShape ground2(Vector2f(75.0f, 75.0f));
+    ground2.setPosition(1100, 375);
+    Texture Ground2;
+    Ground2.loadFromFile("ground.png");
+    ground2.setTexture(&Ground2);
+    ground2.setScale(10, 0.7);
+
+    RectangleShape ground3(Vector2f(75.0f, 75.0f));
+    ground3.setPosition(300, 324);
+    //ground3.setRotation(90);
+    Texture Ground3;
+    Ground3.loadFromFile("ground.png");
+    ground3.setTexture(&Ground3);
+    ground3.setScale(1, 0.7);
 
     Font font;
     font.loadFromFile("./Spider Home.ttf");
@@ -70,9 +92,13 @@ int main()
     sound.setBuffer(buffer);
     sound.play();
     //bool sound getLoop();
+    SoundBuffer bufferj;
+    bufferj.loadFromFile("Mario 1 - Jump.ogg");
+    Sound soundj;
+    soundj.setBuffer(bufferj);
 
-    View camera(FloatRect(0, 0, 1500, 400));
-    camera.setCenter(shape.getPosition());
+
+
 
     Texture coinTexture;
     coinTexture.loadFromFile("coins.png");
@@ -82,20 +108,22 @@ int main()
     int coin_animation_indicator = 0;
     bool isCoinVisable = true;
 
-    //if (isCoinVisable = false) {
-    //    SoundBuffer buffer;
-    //    buffer.loadFromFile("coin.ogg");
-    //    Sound sound;
-    //    sound.setBuffer(buffer);
-    //    sound.play();
-    //}
+
+    SoundBuffer bufferc;
+    bufferc.loadFromFile("coin.ogg");
+    Sound soundc;
+    soundc.setBuffer(bufferc);
+
+
+
 
     while (window.isOpen())
     {
+       
         Event event;
         while (window.pollEvent(event))
         {
-
+           
             if (event.type == Event::Closed) {
 
                 cout << "End";
@@ -109,9 +137,10 @@ int main()
         if (event.type == Event::KeyPressed); {
         }
         if (Keyboard::isKeyPressed(Keyboard::D)) {
-
+            camera.move(Vector2f(0.2, 0.0));
+            text.move(Vector2f(0.2, 0.0));
             shape.move(Vector2f(0.2, 0.0));
-            if (animation_clock.getElapsedTime().asSeconds() > 0.3) {
+            if (animation_clock.getElapsedTime().asSeconds() > 0.1) {
                 animationIndicator++;
                 animation_clock.restart();
             }
@@ -120,7 +149,9 @@ int main()
         }
         if (Keyboard::isKeyPressed(Keyboard::A)) {
             shape.move(Vector2f(-0.2, 0.0));
-            if (animation_clock.getElapsedTime().asSeconds() > 0.3) {
+            camera.move(Vector2f(-0.2, 0.0));
+            text.move(Vector2f(-0.2, 0.0));
+            if (animation_clock.getElapsedTime().asSeconds() > 0.1) {
                 animationIndicator++;
                 animation_clock.restart();
             }
@@ -134,22 +165,31 @@ int main()
         }
         animationIndicator = animationIndicator % 3;
         shape.setTextureRect(IntRect(animationIndicator * 16, 0, 16, 32));
-        if (shape.getGlobalBounds().intersects(coin.getGlobalBounds()) && isCoinVisable) {
+        if (shape.getGlobalBounds().intersects(coin.getGlobalBounds())) {
+            coin.setScale(0, 0);
             score++;
-            sound.play();
+            soundc.play();
             text.setString("score=" + to_string(score));
         }
 
         if (Keyboard::isKeyPressed(Keyboard::Key::Space) && canjump) {
             shape.move(Vector2f(0.0, -100.0));
+            soundj.play();
             canjump = false;
+
         }
         if (!shape.getGlobalBounds().intersects(ground.getGlobalBounds())) {
             shape.move(Vector2f(0, 0.00001));
-        
-        if (!shape.getGlobalBounds().intersects(groundd.getGlobalBounds())) {
-             shape.move(Vector2f(0, 0.00001));
-         }}
+
+            if (!shape.getGlobalBounds().intersects(ground2.getGlobalBounds())) {
+                shape.move(Vector2f(0, 0.00001));
+
+                if (!shape.getGlobalBounds().intersects(ground3.getGlobalBounds())) {
+                    shape.move(Vector2f(-0.00001, 0.00001));
+
+                }
+            }
+        }
         else {
             canjump = true;
         }
@@ -162,34 +202,41 @@ int main()
             coin_animation_indicator = coin_animation_indicator % 6;
         }
 
+        if (goomba_clock.getElapsedTime().asSeconds() > 0.2) {
+            ganimationIndicator++;
+            goomba_clock.restart();
 
+            goomba.setTextureRect(sf::IntRect(ganimationIndicator * 16, 0, 16, 32));
+            ganimationIndicator++;
+            ganimationIndicator = ganimationIndicator % 2;
+        }
         for (int i = 0; i < 100; i++)
         {
-            if (!shape.getGlobalBounds().intersects(ground.getGlobalBounds())&& !shape.getGlobalBounds().intersects(groundd.getGlobalBounds()))
+            if (!shape.getGlobalBounds().intersects(ground.getGlobalBounds()) && !shape.getGlobalBounds().intersects(ground2.getGlobalBounds()) && !shape.getGlobalBounds().intersects(ground3.getGlobalBounds()))
             {
-                shape.move(0, 0.001);
+                shape.move(0.0001, 0.001);
+                shape.move(-0.0001, 0.001);
             }
 
 
         }
-       // window.setView(camera);
+        // window.setView(camera);
         window.clear();
         window.draw(layer);
         window.draw(layer2);
-
+        window.draw(goomba);
         window.draw(text);
         window.draw(ground);
-        window.draw(groundd);
+        window.draw(ground2);
+        window.draw(ground3);
         if (isCoinVisable) window.draw(coin);
 
         window.draw(shape);
         window.display();
-        //Time=clock
-        //for(size_t i =0; ;i<=100000; i ++)
+       
 
     }
-
-
     return 0;
 }
+
 
