@@ -18,13 +18,13 @@ int main()
     RenderWindow window(VideoMode(1700, 400), "SuperMario");
 
     RectangleShape layer(Vector2f(1700, 400.0));
-    layer.setPosition(0, 0);
+    layer.setPosition(-100, 0);
     Texture sky;
     sky.loadFromFile("skyyy.png");
     layer.setTexture(&sky);
 
     RectangleShape layer2(Vector2f(1700.0, 390.0));
-    layer2.setPosition(0, 0);
+    layer2.setPosition(-100, 0);
     Texture sky2;
     sky2.loadFromFile("skyy.png");
     layer2.setTexture(&sky2);
@@ -49,12 +49,12 @@ int main()
     int  ganimationIndicator = 0;
     bool isgoombavisable = true;
 
-    View camera(FloatRect(1700, 0, 1700, 400));
-    camera.setCenter(sf::Vector2f(0.f, 300.f));
-    camera.setSize(sf::Vector2f(800.f, 400.f));
+    View camera;// (FloatRect(1700, 0, 1700, 400));
+    camera.setCenter(Vector2f(350.0f, 200.0f));
+    camera.setSize(Vector2f(800.0f, 400.0f));
 
     RectangleShape ground(Vector2f(75.0f, 75.0f));
-    ground.setPosition(0, 375);
+    ground.setPosition(-100, 375);
     Texture Ground;
     Ground.loadFromFile("ground.png");
     ground.setTexture(&Ground);
@@ -62,7 +62,7 @@ int main()
     //ground.setTextureRect(IntRect(0, 0, 16, 32));
     //ground.setPosition(ground.getGlobalBounds().width, 400 - ground.getGlobalBounds().height);
     RectangleShape ground2(Vector2f(75.0f, 75.0f));
-    ground2.setPosition(1100, 375);
+    ground2.setPosition(1000, 375);
     Texture Ground2;
     Ground2.loadFromFile("ground.png");
     ground2.setTexture(&Ground2);
@@ -205,7 +205,7 @@ int main()
         if (goomba_clock.getElapsedTime().asSeconds() > 0.2) {
             ganimationIndicator++;
             goomba_clock.restart();
-
+            goomba.setScale(-1, 1);
             goomba.setTextureRect(sf::IntRect(ganimationIndicator * 16, 0, 16, 32));
             ganimationIndicator++;
             ganimationIndicator = ganimationIndicator % 2;
@@ -220,7 +220,7 @@ int main()
 
 
         }
-        // window.setView(camera);
+        window.setView(camera);
         window.clear();
         window.draw(layer);
         window.draw(layer2);
